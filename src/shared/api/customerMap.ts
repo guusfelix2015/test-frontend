@@ -11,7 +11,7 @@ export class CustomerMap extends Map<unknown, Customer> {
     return customersString ? JSON.parse(customersString) : null;
   }
 
-  addCustomer(customer: Customer): void {
+  addCustomer(customer: Customer) {
     const id = Math.random().toString(36).substring(7);
     const newCustomer = { ...customer, id };
     this.set(id, newCustomer);

@@ -16,8 +16,10 @@ const handlers = [
     if (typeof body !== "object") {
       return;
     }
-    const customer: Customer = body as Customer;
-    customerMap.addCustomer(customer);
+    const myBody: Customer = body as Customer;
+    const customer = customerMap.addCustomer(myBody);
+
+    return HttpResponse.json(customer as unknown as Customer);
   }),
 ];
 
