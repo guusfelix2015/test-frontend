@@ -74,7 +74,7 @@ export const EditCustomer = () => {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<FormData>({
     mode: "all",
     resolver: zodResolver(schema),
@@ -148,6 +148,7 @@ export const EditCustomer = () => {
           {type === CustomerType.PJ ? (
             <>
               <TextField
+                InputLabelProps={{ shrink: !!watch("companyName") }}
                 required
                 label="Company Name"
                 fullWidth
@@ -157,6 +158,7 @@ export const EditCustomer = () => {
                 helperText={errors.companyName?.message}
               />
               <TextField
+                InputLabelProps={{ shrink: !!watch("tradeName") }}
                 required
                 label="Trade Name"
                 fullWidth
@@ -168,6 +170,7 @@ export const EditCustomer = () => {
             </>
           ) : (
             <TextField
+              InputLabelProps={{ shrink: !!watch("name") }}
               required
               label="Name"
               fullWidth
@@ -178,6 +181,7 @@ export const EditCustomer = () => {
             />
           )}
           <TextField
+            InputLabelProps={{ shrink: !!watch("document") }}
             required
             label="Document"
             fullWidth
@@ -187,6 +191,7 @@ export const EditCustomer = () => {
             helperText={errors.document?.message}
           />
           <TextField
+            InputLabelProps={{ shrink: !!watch("email") }}
             required
             label="Email"
             fullWidth
@@ -196,6 +201,7 @@ export const EditCustomer = () => {
             helperText={errors.email?.message}
           />
           <TextField
+            InputLabelProps={{ shrink: !!watch("phoneNumber") }}
             required
             label="Phone"
             fullWidth
@@ -206,13 +212,12 @@ export const EditCustomer = () => {
           />
 
           <Button
-            disabled={!isValid}
             type="submit"
             variant="contained"
             color="primary"
             sx={{ width: "100%", mt: 4 }}
           >
-            CREATE
+            UPDATE
           </Button>
         </form>
       </Box>
@@ -225,8 +230,8 @@ export const EditCustomer = () => {
           sx={{ width: "100%" }}
         >
           {isSuccess
-            ? "Customer created successfully"
-            : "Error creating customer"}
+            ? "Customer updated successfully"
+            : "Error updating customer"}
         </Alert>
       </Snackbar>
     </Container>
