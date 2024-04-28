@@ -28,6 +28,28 @@ const handlers = [
     customerMap.deleteCustomer(customerId as string);
     return HttpResponse.json({ success: true });
   }),
+
+  http.get("/customers/:id", ({ params }) => {
+    const customerId = params.id;
+    const customer = customerMap.getCustomerFromSessionStorage(
+      customerId.toString()
+    );
+    return HttpResponse.json(customer as unknown as Customer);
+  }),
+
+  http.put("/customers/:id", async ({ request, params }) => {
+    const customerId = params.id;
+    const body = await request.json();
+    if (!body) return;
+    if (typeof body !== "object") {
+      return;
+    }
+    const myBody: Customer = body as Customer;
+    myBody.id = customerId.toString();
+    const customer = customerMap.updateCustomer(myBody);
+
+    return HttpResponse.json(customer as unknown as Customer);
+  }),
 ];
 
 export default handlers;
