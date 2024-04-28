@@ -22,6 +22,17 @@ export class CustomerMap extends Map<unknown, Customer> {
     this.setCustomerSessionStorage(Array.from(this.values()));
   }
 
+  getCustomerFromSessionStorage(id: string): Customer | null {
+    const customers = this.getCustomersFromSessionStorage();
+    if (!customers) return null;
+    return customers.find((customer) => customer.id === id) || null;
+  }
+
+  updateCustomer(customer: Customer) {
+    this.set(customer.id, customer);
+    this.setCustomerSessionStorage(Array.from(this.values()));
+  }
+
   private setCustomerSessionStorage(customers: Customer[]): void {
     sessionStorage.setItem("customers", JSON.stringify(customers));
   }
