@@ -16,6 +16,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { CustomerService } from "../../../shared/services";
 import { queryClient } from "../../../shared/lib/react-query";
+import { useNavigate } from "react-router-dom";
 
 export interface Props {
   customer: Customer;
@@ -26,6 +27,7 @@ export const CustomerTableRows = ({ customer }: Props) => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
     null
   );
+  const navigate = useNavigate();
 
   const handleClickOpen = (customerId: string) => {
     setSelectedCustomerId(customerId);
@@ -35,8 +37,6 @@ export const CustomerTableRows = ({ customer }: Props) => {
   const handleClose = () => {
     setOpen(false);
   };
-
-  console.log(selectedCustomerId);
 
   const { mutate } = useMutation({
     mutationFn: (customerId: string) =>
@@ -65,7 +65,12 @@ export const CustomerTableRows = ({ customer }: Props) => {
         <TableCell>{customer.email}</TableCell>
         <TableCell>{customer.phoneNumber}</TableCell>
         <TableCell>
-          <IconButton size="small">
+          <IconButton
+            onClick={() => {
+              navigate(`/edit/${customer.id}`);
+            }}
+            size="small"
+          >
             <EditRoundedIcon fontSize="small" />
           </IconButton>
           <IconButton
