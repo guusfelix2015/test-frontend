@@ -6,7 +6,6 @@ import {
   TableContainer,
   Typography,
 } from "@mui/material";
-
 import styles from "./styles";
 import {
   CustomerTableHeader,
@@ -14,80 +13,59 @@ import {
   EmptyCustomer,
 } from "./components";
 
-const customers = [
-  {
-    type: "PF",
-    name: "Company 1",
-    document: "00.000.000/0000-00",
-    email: "company@gmail.com",
-    phone: "(00) 0000-0000",
-  },
-  {
-    type: "PF",
-    name: "Company 1",
-    document: "00.000.000/0000-00",
-    email: "company@gmail.com",
-    phone: "(00) 0000-0000",
-  },
-  {
-    type: "PF",
-    name: "Company 1",
-    document: "00.000.000/0000-00",
-    email: "company@gmail.com",
-    phone: "(00) 0000-0000",
-  },
-  {
-    type: "PF",
-    name: "Company 1",
-    document: "00.000.000/0000-00",
-    email: "company@gmail.com",
-    phone: "(00) 0000-0000",
-  },
-  {
-    type: "PF",
-    name: "Company 1",
-    document: "00.000.000/0000-00",
-    email: "company@gmail.com",
-    phone: "(00) 0000-0000",
-  },
-  {
-    type: "PF",
-    name: "Company 1",
-    document: "00.000.000/0000-00",
-    email: "company@gmail.com",
-    phone: "(00) 0000-0000",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { CustomerService } from "../../shared/services";
+import { Customer } from "../../shared/interfaces";
+import { Container, Loading } from "../../shared/components";
 
-/* const customers = [];
- */
+
 export const Home = () => {
+  const navigate = useNavigate();
+
+  const navigateToCreateCustomer = () => {
+    navigate("/create");
+  };
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["customers"],
+    queryFn: async () => {
+      const customers = await CustomerService.getCustomers();
+      return customers;
+    },
+  });
+
+  const customers: Customer[] = data || [];
+
   return (
-    <Box sx={styles.mainConstainer}>
-      <Box sx={styles.container}>
-        <Box sx={styles.customerContainer}>
-          <Box sx={styles.customerContainerHeader}>
-            <Typography variant="h6">Customers</Typography>
-            <Button variant="contained">CREATE</Button>
-          </Box>
-          {customers.length > 0 ? (
-            <TableContainer
-              sx={{ boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)", mt: 4 }}
-            >
-              <Table>
-                <CustomerTableHeader />
-                <TableBody>
-                  {customers.map((customer, index) => (
-                    <CustomerTableRows customer={customer} key={index} />
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <EmptyCustomer />
-          )}
+    <Container>
+      <Box sx={styles.customerContainer}>
+        <Box sx={styles.customerContainerHeader}>
+          <Typography variant="h6">Customers</Typography>
+          <Button onClick={navigateToCreateCustomer} variant="contained">
+            CREATE
+          </Button>
         </Box>
+
+        {isLoading ? (
+          <Loading />
+        ) : customers.length > 0 ? (
+          <TableContainer
+            sx={{ boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)", mt: 4 }}
+          >
+            <Table>
+              <CustomerTableHeader />
+              <TableBody>
+                {customers.map((customer, index) => (
+                  <CustomerTableRows customer={customer} key={index} />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <EmptyCustomer />
+        )}
       </Box>
-    </Box>
+    </Container>
   );
 };

@@ -1,7 +1,7 @@
 import { TableCell, TableRow, IconButton } from "@mui/material";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
-import { Customer } from "../../../types";
+import { Customer } from "src/shared/interfaces";
 
 export interface Props {
   customer: Customer;
@@ -14,7 +14,7 @@ export const CustomerTableRows = ({ customer }: Props) => {
       <TableCell>{customer.name}</TableCell>
       <TableCell>{customer.document}</TableCell>
       <TableCell>{customer.email}</TableCell>
-      <TableCell>{customer.phone}</TableCell>
+      <TableCell>{customer.phoneNumber}</TableCell>
       <TableCell>
         <IconButton size="small">
           <EditRoundedIcon fontSize="small" />
@@ -26,4 +26,3 @@ export const CustomerTableRows = ({ customer }: Props) => {
     </TableRow>
   );
 };
-
