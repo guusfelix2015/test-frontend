@@ -19,7 +19,6 @@ import { CustomerService } from "../../shared/services";
 import { Customer } from "../../shared/interfaces";
 import { Container, Loading } from "../../shared/components";
 
-
 export const Home = () => {
   const navigate = useNavigate();
 
@@ -33,6 +32,7 @@ export const Home = () => {
       const customers = await CustomerService.getCustomers();
       return customers;
     },
+    refetchOnWindowFocus: false,
   });
 
   const customers: Customer[] = data || [];
