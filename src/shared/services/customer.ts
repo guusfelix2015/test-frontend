@@ -35,4 +35,27 @@ export class CustomerService {
       throw new Error(`Error creating customer: ${error}`);
     }
   }
+
+  static async deleteCustomer(id: string): Promise<boolean> {
+    try {
+      const response = await fetch(`/customers/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete customer");
+      }
+
+      const responseData = await response.json();
+
+      if (!responseData.success) {
+        console.error("Failed to delete customer");
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      throw new Error(`Error deleting customer: ${error}`);
+    }
+  }
 }

@@ -21,6 +21,13 @@ const handlers = [
 
     return HttpResponse.json(customer as unknown as Customer);
   }),
+
+  http.delete("/customers/:id", ({ params }) => {
+    const customerId = params.id;
+    console.log("customerId: ", customerId);
+    customerMap.deleteCustomer(customerId as string);
+    return HttpResponse.json({ success: true });
+  }),
 ];
 
 export default handlers;

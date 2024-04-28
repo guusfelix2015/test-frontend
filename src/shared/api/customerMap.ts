@@ -5,7 +5,6 @@ export class CustomerMap extends Map<unknown, Customer> {
     super();
   }
 
-
   getCustomersFromSessionStorage(): Customer[] | null {
     const customersString = sessionStorage.getItem("customers");
     return customersString ? JSON.parse(customersString) : null;
@@ -15,6 +14,11 @@ export class CustomerMap extends Map<unknown, Customer> {
     const id = Math.random().toString(36).substring(7);
     const newCustomer = { ...customer, id };
     this.set(id, newCustomer);
+    this.setCustomerSessionStorage(Array.from(this.values()));
+  }
+
+  deleteCustomer(id: string) {
+    this.delete(id);
     this.setCustomerSessionStorage(Array.from(this.values()));
   }
 
