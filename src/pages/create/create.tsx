@@ -3,6 +3,7 @@ import {
   Button,
   FormControl,
   FormHelperText,
+  IconButton,
   MenuItem,
   Select,
   TextField,
@@ -14,6 +15,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { Container } from "../../shared/components";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { CustomerService } from "../../shared/services";
 
 enum CustomerType {
   PF = "PF",
@@ -33,8 +38,8 @@ const schema = z.object({
 export type FormData = z.infer<typeof schema>;
 export type InputCustomer = z.infer<typeof schema>;
 
-
 export const CreateCustomer = () => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -58,34 +63,38 @@ export const CreateCustomer = () => {
     }
   }, [type, setValue]);
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      const response = await fetch("/customers", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create customer");
-      }
+  const { mutate } = useMutation({
+    mutationFn: CustomerService.createCustomer,
+    onSuccess: () => {
       reset();
-      console.log(response)
-      return response.json();
-    } catch (error) {
-      console.error(error);
-    }
+      navigate("/");
+    },
+    onError: (error) => {
+      alert(error);
+    },
+  });
+
+  const onSubmit = async (data: FormData) => {
+    mutate(data);
   };
 
   return (
     <Container>
       <Box sx={styles.createCustomerContainer}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Typography variant="h6" gutterBottom>
-            Create customer
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <IconButton
+              onClick={() => {
+                navigate("/");
+              }}
+              size="small"
+            >
+              <ArrowBackIosIcon fontSize="small" sx={{ mb: 1 }} />
+            </IconButton>
+            <Typography variant="h6" gutterBottom>
+              Create customer
+            </Typography>
+          </Box>
           <FormControl fullWidth margin="normal" error={!!errors.type}>
             <Select defaultValue="PF" {...register("type")} sx={{ my: 1 }}>
               <MenuItem value="PF">Individual</MenuItem>
@@ -93,7 +102,7 @@ export const CreateCustomer = () => {
             </Select>
             <FormHelperText>{errors.type?.message}</FormHelperText>
           </FormControl>
-          {type === CustomerType.PJ ? ( // Renderiza os campos condicionalmente para PJ
+          {type === CustomerType.PJ ? (
             <>
               <TextField
                 required
