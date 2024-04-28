@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   FormControl,
@@ -6,6 +7,7 @@ import {
   IconButton,
   MenuItem,
   Select,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
@@ -13,7 +15,7 @@ import styles from "./styles";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Container } from "../../shared/components";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import { useNavigate } from "react-router-dom";
@@ -39,6 +41,23 @@ export type FormData = z.infer<typeof schema>;
 export type InputCustomer = z.infer<typeof schema>;
 
 export const CreateCustomer = () => {
+  const [open, setOpen] = useState(false);
+
+  const handleClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  };
+
   const navigate = useNavigate();
   const {
     register,
@@ -63,11 +82,11 @@ export const CreateCustomer = () => {
     }
   }, [type, setValue]);
 
-  const { mutate } = useMutation({
+  const { mutate, isSuccess } = useMutation({
     mutationFn: CustomerService.createCustomer,
     onSuccess: () => {
+      handleClick();
       reset();
-      navigate("/");
     },
     onError: (error) => {
       alert(error);
@@ -173,6 +192,19 @@ export const CreateCustomer = () => {
           </Button>
         </form>
       </Box>
+
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={isSuccess ? "success" : "error"}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {isSuccess
+            ? "Customer created successfully"
+            : "Error creating customer"}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
