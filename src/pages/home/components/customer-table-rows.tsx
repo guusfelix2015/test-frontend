@@ -95,6 +95,7 @@ export const CustomerTableRows = ({ customer }: Props) => {
         <DialogActions>
           <Button onClick={handleClose}>Disagree</Button>
           <Button
+            color="error"
             onClick={() => {
               if (selectedCustomerId) {
                 mutate(selectedCustomerId);
