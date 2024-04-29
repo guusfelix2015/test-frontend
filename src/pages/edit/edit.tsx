@@ -126,7 +126,6 @@ export const EditCustomer = () => {
     <Container>
       <Box sx={styles.createCustomerContainer}>
         <form onSubmit={handleSubmit(onUpdateCustomer)}>
-          <h1>{id}</h1>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <IconButton onClick={handleNavigateHome} size="small">
               <ArrowBackIosIcon fontSize="small" sx={{ mb: 1 }} />
