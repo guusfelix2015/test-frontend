@@ -10,7 +10,9 @@ export const EmptyCustomer = () => {
         height: "100%",
       }}
     >
-      <Typography variant="h6">No customers found</Typography>
+      <Typography sx={{ fontSize: "24px", fontWeight: "bold" }} variant="h2">
+        No customers found
+      </Typography>
     </Box>
   );
 };

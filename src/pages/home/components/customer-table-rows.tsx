@@ -45,9 +45,6 @@ export const CustomerTableRows = ({ customer }: Props) => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       handleClose();
     },
-    onError: (error) => {
-      console.error(error);
-    },
   });
 
   return (

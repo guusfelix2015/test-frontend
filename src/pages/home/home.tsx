@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Table,
-  TableBody,
-  TableContainer,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Table, TableBody, TableContainer } from "@mui/material";
 import styles from "./styles";
 import {
   CustomerTableHeader,
@@ -17,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { CustomerService } from "../../shared/services";
 import { Customer } from "../../shared/interfaces";
-import { Container, Loading } from "../../shared/components";
+import { Container, Loading, Title } from "../../shared/components";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -41,7 +34,7 @@ export const Home = () => {
     <Container>
       <Box sx={styles.customerContainer}>
         <Box sx={styles.customerContainerHeader}>
-          <Typography variant="h6">Customers</Typography>
+          <Title title="Customers" />
           <Button onClick={navigateToCreateCustomer} variant="contained">
             CREATE
           </Button>

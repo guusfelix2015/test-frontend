@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   FormControl,
@@ -7,16 +6,14 @@ import {
   IconButton,
   MenuItem,
   Select,
-  Snackbar,
   TextField,
-  Typography,
 } from "@mui/material";
 import styles from "./styles";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { Container } from "../../shared/components";
+import { Container, Title, Toast } from "../../shared/components";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
@@ -47,24 +44,6 @@ export type FormData = z.infer<typeof schema>;
 export type InputCustomer = z.infer<typeof schema>;
 
 export const CreateCustomer = () => {
-  const [open, setOpen] = useState(false);
-
-  const handleClick = () => {
-    setOpen(true);
-  };
-
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpen(false);
-  };
-
-  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -79,7 +58,23 @@ export const CreateCustomer = () => {
   });
 
   const { type } = watch();
-  
+  const navigate = useNavigate();
+  const [openToast, setOpenToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const showSnackbar = (message: string) => {
+    setToastMessage(message);
+    setOpenToast(true);
+  };
+
+  const removeSnackbar = () => {
+    setOpenToast(false);
+  };
+
+  const handleNavigateHome = () => {
+    navigate("/");
+  };
+
   useEffect(() => {
     if (type === CustomerType.PF) {
       setValue("companyName", null);
@@ -92,34 +87,24 @@ export const CreateCustomer = () => {
   const { mutate, isSuccess } = useMutation({
     mutationFn: CustomerService.createCustomer,
     onSuccess: () => {
-      handleClick();
+      showSnackbar("Customer created successfully");
       reset();
-    },
-    onError: (error) => {
-      alert(error);
     },
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onCreateCustomer = async (data: FormData) => {
     mutate(data);
   };
 
   return (
     <Container>
       <Box sx={styles.createCustomerContainer}>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onCreateCustomer)}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
-              onClick={() => {
-                navigate("/");
-              }}
-              size="small"
-            >
+            <IconButton onClick={handleNavigateHome} size="small">
               <ArrowBackIosIcon fontSize="small" sx={{ mb: 1 }} />
             </IconButton>
-            <Typography variant="h6" gutterBottom>
-              Create customer
-            </Typography>
+            <Title title="Create Customer" />
           </Box>
           <FormControl fullWidth margin="normal" error={!!errors.type}>
             <Select defaultValue="PF" {...register("type")} sx={{ my: 1 }}>
@@ -213,19 +198,12 @@ export const CreateCustomer = () => {
           </Button>
         </form>
       </Box>
-
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert
-          onClose={handleClose}
-          severity={isSuccess ? "success" : "error"}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {isSuccess
-            ? "Customer created successfully"
-            : "Error creating customer"}
-        </Alert>
-      </Snackbar>
+      <Toast
+        open={openToast}
+        onClose={removeSnackbar}
+        message={toastMessage}
+        severity={isSuccess ? "success" : "error"}
+      />
     </Container>
   );
 };

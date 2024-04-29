@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   FormControl,
@@ -7,15 +6,13 @@ import {
   IconButton,
   MenuItem,
   Select,
-  Snackbar,
   TextField,
-  Typography,
 } from "@mui/material";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { Container } from "../../shared/components";
+import { Container, Title, Toast } from "../../shared/components";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -47,34 +44,6 @@ export type FormData = z.infer<typeof schema>;
 export type InputEditCustomer = z.infer<typeof schema>;
 
 export const EditCustomer = () => {
-  const { id } = useParams();
-  const [open, setOpen] = useState(false);
-
-  const { data: customer } = useQuery({
-    queryKey: ["customer", id],
-    queryFn: async () => {
-      if (!id) return;
-      const customer = await CustomerService.getCustomer(id);
-      return customer;
-    },
-  });
-
-  const handleClick = () => {
-    setOpen(true);
-  };
-
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpen(false);
-  };
-
-  const navigate = useNavigate();
   const {
     register,
     control,
@@ -88,6 +57,50 @@ export const EditCustomer = () => {
   });
 
   const { type } = watch();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [openToast, setOpenToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const { data: customer } = useQuery({
+    queryKey: ["customer", id],
+    queryFn: async () => {
+      if (!id) return;
+      const customer = await CustomerService.getCustomer(id);
+      return customer;
+    },
+  });
+
+  const showSnackbar = (message: string) => {
+    setToastMessage(message);
+    setOpenToast(true);
+  };
+
+  const removeSnackbar = () => {
+    setOpenToast(false);
+  };
+
+  const handleNavigateHome = () => {
+    navigate("/");
+  };
+
+  const { mutate, isSuccess } = useMutation({
+    mutationFn: CustomerService.updateCustomer,
+    onSuccess: () => {
+      showSnackbar("Customer updated successfully");
+    },
+    onError: (error) => {
+      alert(error);
+    },
+  });
+
+  const onUpdateCustomer = async (data: FormData) => {
+    if (!id) return;
+    mutate({
+      id,
+      customer: data,
+    });
+  };
 
   useEffect(() => {
     if (type === CustomerType.PF) {
@@ -109,41 +122,16 @@ export const EditCustomer = () => {
     setValue("phoneNumber", customer.phoneNumber);
   }, [customer, setValue]);
 
-  const { mutate, isSuccess } = useMutation({
-    mutationFn: CustomerService.updateCustomer,
-    onSuccess: () => {
-      handleClick();
-    },
-    onError: (error) => {
-      alert(error);
-    },
-  });
-
-  const onSubmit = async (data: FormData) => {
-    if (!id) return;
-    mutate({
-      id,
-      customer: data,
-    });
-  };
-
   return (
     <Container>
       <Box sx={styles.createCustomerContainer}>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onUpdateCustomer)}>
           <h1>{id}</h1>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
-              onClick={() => {
-                navigate("/");
-              }}
-              size="small"
-            >
+            <IconButton onClick={handleNavigateHome} size="small">
               <ArrowBackIosIcon fontSize="small" sx={{ mb: 1 }} />
             </IconButton>
-            <Typography variant="h6" gutterBottom>
-              Create customer
-            </Typography>
+            <Title title="Edit Customer" />
           </Box>
           <FormControl fullWidth margin="normal" error={!!errors.type}>
             <Select defaultValue="PF" {...register("type")} sx={{ my: 1 }}>
@@ -240,18 +228,12 @@ export const EditCustomer = () => {
         </form>
       </Box>
 
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert
-          onClose={handleClose}
-          severity={isSuccess ? "success" : "error"}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {isSuccess
-            ? "Customer updated successfully"
-            : "Error updating customer"}
-        </Alert>
-      </Snackbar>
+      <Toast
+        open={openToast}
+        onClose={removeSnackbar}
+        message={toastMessage}
+        severity={isSuccess ? "success" : "error"}
+      />
     </Container>
   );
 };
