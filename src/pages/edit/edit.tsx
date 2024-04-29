@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { Container } from "../../shared/components";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -21,6 +21,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CustomerService } from "../../shared/services";
 import styles from "../create/styles";
+import { formatToPhone, isPhone } from "brazilian-values";
 
 enum CustomerType {
   PF = "PF",
@@ -34,7 +35,12 @@ const schema = z.object({
   type: z.nativeEnum(CustomerType),
   document: z.string().min(1, "Document is required"),
   email: z.string().email("Invalid email").min(1, "Email is required"),
-  phoneNumber: z.string(),
+  phoneNumber: z
+    .string()
+    .refine((value) => {
+      if (isPhone(value)) return true;
+    }, "Invalid phone number")
+    .transform((value) => formatToPhone(value)),
 });
 
 export type FormData = z.infer<typeof schema>;
@@ -71,6 +77,7 @@ export const EditCustomer = () => {
   const navigate = useNavigate();
   const {
     register,
+    control,
     handleSubmit,
     setValue,
     watch,
@@ -86,7 +93,7 @@ export const EditCustomer = () => {
     if (type === CustomerType.PF) {
       setValue("companyName", null);
       setValue("tradeName", null);
-    } else if (type === CustomerType.PJ) {
+    } else {
       setValue("name", null);
     }
   }, [type, setValue]);
@@ -200,17 +207,28 @@ export const EditCustomer = () => {
             error={!!errors.email}
             helperText={errors.email?.message}
           />
-          <TextField
-            InputLabelProps={{ shrink: !!watch("phoneNumber") }}
-            required
-            label="Phone"
-            fullWidth
-            margin="normal"
-            {...register("phoneNumber")}
-            error={!!errors.phoneNumber}
-            helperText={errors.phoneNumber?.message}
+          <Controller
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                required
+                label="Phone"
+                fullWidth
+                margin="normal"
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber?.message}
+                onChange={(e) => {
+                  const watchPhone = e.target.value;
+                  if (!watchPhone) return null;
+                  const formattedPhone = formatToPhone(watchPhone);
+                  field.onChange(formattedPhone);
+                }}
+                value={field.value ?? ""}
+              />
+            )}
+            name="phoneNumber"
           />
-
           <Button
             type="submit"
             variant="contained"
