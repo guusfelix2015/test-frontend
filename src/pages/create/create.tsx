@@ -11,14 +11,15 @@ import {
 import styles from "./styles";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { Controller, UseFormSetValue, useForm } from "react-hook-form";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Container, Title, Toast } from "../../shared/components";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { CustomerService } from "../../shared/services";
-import { formatToPhone, isCNPJ, isCPF, isPhone } from "brazilian-values";
+import { formatToPhone, isPhone } from "brazilian-values";
+import { maskCPF, maskCPForCNPJ } from "../../shared/utils/formatDocuments";
 
 enum CustomerType {
   PF = "PF",
@@ -43,33 +44,11 @@ const schema = z.object({
 export type FormData = z.infer<typeof schema>;
 export type InputCustomer = z.infer<typeof schema>;
 
-export const maskCPForCNPJ = (value: string) => {
-  value = value.replace(/\D/g, "");
-
-  if (value.length <= 11) {
-    value = value.replace(/(\d{3})(\d)/, "$1.$2");
-    value = value.replace(/(\d{3})(\d)/, "$1.$2");
-    value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-  } else {
-    value = value.replace(/^(\d{2})(\d)/, "$1.$2");
-    value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-    value = value.replace(/\.(\d{3})(\d)/, ".$1/$2");
-    value = value.replace(/(\d{4})(\d)/, "$1-$2");
-  }
-
-  return value.slice(0, 18);
-};
-
-export const maskCPF = (value: string) => {
-  return value
-    .replace(/\D/g, "")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})/, "$1-$2")
-    .replace(/(-\d{2})\d+?$/, "$1");
-};
-
-const handleDocumentMaskChange = (e, setValue, documentType) => {
+const handleDocumentMaskChange = (
+  e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  setValue: UseFormSetValue<FormData>,
+  documentType: CustomerType
+) => {
   const maskedValue =
     documentType === CustomerType.PF
       ? maskCPF(e.target.value)

@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { Controller, UseFormSetValue, useForm } from "react-hook-form";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Container, Title, Toast } from "../../shared/components";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import { useNavigate, useParams } from "react-router-dom";
@@ -19,6 +19,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { CustomerService } from "../../shared/services";
 import styles from "../create/styles";
 import { formatToPhone, isPhone } from "brazilian-values";
+import { maskCPF, maskCPForCNPJ } from "../../shared/utils/formatDocuments";
 
 enum CustomerType {
   PF = "PF",
@@ -82,6 +83,18 @@ export const EditCustomer = () => {
 
   const handleNavigateHome = () => {
     navigate("/");
+  };
+
+  const handleDocumentMaskChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    setValue: UseFormSetValue<FormData>,
+    documentType: CustomerType
+  ) => {
+    const maskedValue =
+      documentType === CustomerType.PF
+        ? maskCPF(e.target.value)
+        : maskCPForCNPJ(e.target.value);
+    setValue("document", maskedValue);
   };
 
   const { mutate, isSuccess } = useMutation({
@@ -175,6 +188,7 @@ export const EditCustomer = () => {
             />
           )}
           <TextField
+            min={CustomerType.PF ? 11 : 14}
             InputLabelProps={{ shrink: !!watch("document") }}
             required
             label="Document"
@@ -183,6 +197,9 @@ export const EditCustomer = () => {
             {...register("document")}
             error={!!errors.document}
             helperText={errors.document?.message}
+            onChange={(e) =>
+              handleDocumentMaskChange(e, setValue, type as CustomerType)
+            }
           />
           <TextField
             InputLabelProps={{ shrink: !!watch("email") }}
