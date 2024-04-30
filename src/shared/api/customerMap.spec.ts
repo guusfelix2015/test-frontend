@@ -72,3 +72,20 @@ it("should update a customer in the map and sessionStorage", () => {
 
   expect(updatedCustomers).toEqual(customerValues);
 });
+
+it("should remove a customer from the map and sessionStorage", () => {
+  const customers = [
+    { id: 1, name: "Customer 1" },
+    { id: 2, name: "Customer 2" },
+  ];
+  sessionStorage.setItem("customers", JSON.stringify(customers));
+
+  const customerMap = new CustomerMap();
+
+  customerMap.deleteCustomer("2");
+
+  const updatedCustomers = customerMap.getCustomersFromSessionStorage();
+  const customerValues = Array.from(customerMap.values());
+
+  expect(updatedCustomers).toEqual(customerValues);
+});
