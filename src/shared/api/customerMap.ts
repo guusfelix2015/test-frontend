@@ -33,7 +33,7 @@ export class CustomerMap extends Map<unknown, Customer> {
     this.setCustomerSessionStorage(Array.from(this.values()));
   }
 
-  private setCustomerSessionStorage(customers: Customer[]): void {
+  setCustomerSessionStorage(customers: Customer[]): void {
     sessionStorage.setItem("customers", JSON.stringify(customers));
   }
 }
